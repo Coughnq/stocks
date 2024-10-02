@@ -1,0 +1,1398 @@
+:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #f44336;
+    --background-color: #1e2130;
+    --card-background: #262a3b;
+    --text-color: #ffffff;
+    --secondary-text-color: #a3a3a3;
+    --border-color: #3a3f55;
+    --button-hover-color: #2c3241;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--card-background);
+}
+
+.header-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+main {
+    flex-grow: 1;
+    padding: 1rem;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.metric-card, .chart-card, .table-card, .news-card {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.metric-card h3, .chart-card h3, .table-card h3, .news-card h3 {
+    margin-top: 0;
+    color: var(--secondary-text-color);
+    font-size: 1rem;
+    font-weight: normal;
+}
+
+.large-number {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+    color: var(--primary-color);
+}
+
+.chart-card {
+    grid-column: span 3;
+}
+
+.chart-container {
+    height: 300px;
+}
+
+.table-card, .news-card {
+    grid-column: span 1;
+}
+
+.scrollable-table, .scrollable-content {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    text-align: left;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    color: var(--secondary-text-color);
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+/* Add more specific styles as needed for your game elements */
+
+.positive-change {
+    color: #4caf50;
+}
+
+.negative-change {
+    color: #f44336;
+}
+
+/* Comment out or remove news-related styles
+.news-card {
+    ...
+}
+
+#newsContainer {
+    ...
+}
+
+.news-item {
+    ...
+}
+*/
+
+/* Style scrollbars for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-text-color);
+}
+
+.trade-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    color: var(--text-color);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    color: var(--text-color);
+}
+
+.trade-amount-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.amount-button {
+    flex-grow: 1;
+    margin-right: 5px;
+    padding: 10px;
+    background-color: var(--secondary-background);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: background-color 0.3s;
+}
+
+.amount-button:hover {
+    background-color: var(--button-hover-color);
+}
+
+.amount-button:last-child {
+    margin-right: 0;
+}
+
+.custom-amount {
+    width: 60px;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--card-background);
+    color: var(--text-color);
+}
+
+.trade-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.trade-button {
+    flex-grow: 1;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    transition: opacity 0.3s;
+}
+
+.trade-button:hover {
+    opacity: 0.9;
+}
+
+.trade-button.buy {
+    background-color: var(--primary-color);
+    margin-right: 5px;
+}
+
+.trade-button.sell {
+    background-color: var(--secondary-color);
+    margin-left: 5px;
+}
+
+.cancel-button {
+    background-color: var(--border-color);
+    color: var(--text-color);
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.cancel-button:hover {
+    background-color: var(--button-hover-color);
+}
+
+/* Styles for the main trading interface */
+.trade-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.trade-button:hover {
+    opacity: 0.9;
+}
+
+/* Additional styles for better readability */
+#tradeCurrentPrice, #tradeShares, #tradeTotalCost {
+    font-weight: bold;
+}
+
+/* Ensure text inputs have consistent styling */
+input[type="number"] {
+    background-color: var(--card-background);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 5px;
+}
+
+/* Add some spacing between elements */
+.modal-content > * {
+    margin-bottom: 10px;
+}
+
+/* Add more specific styles as needed for your game elements */
+
+.positive-change {
+    color: #4caf50;
+}
+
+.negative-change {
+    color: #f44336;
+}
+
+/* Comment out or remove news-related styles
+.news-card {
+    ...
+}
+
+#newsContainer {
+    ...
+}
+
+.news-item {
+    ...
+}
+*/
+
+/* Style scrollbars for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-text-color);
+}
+
+.trade-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.trade-input {
+    margin-bottom: 15px;
+}
+
+.trade-input input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+}
+
+.trade-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.trade-button, .cancel-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.cancel-button {
+    background-color: #808080;
+    color: white;
+    width: 100%;
+}
+
+.trade-button.buy {
+    background-color: #4CAF50;
+}
+
+.trade-button.sell {
+    background-color: #f44336;
+}
+
+/* Add more specific styles as needed for your game elements */
+
+.positive-change {
+    color: #4caf50;
+}
+
+.negative-change {
+    color: #f44336;
+}
+
+/* Comment out or remove news-related styles
+.news-card {
+    ...
+}
+
+#newsContainer {
+    ...
+}
+
+.news-item {
+    ...
+}
+*/
+
+/* Style scrollbars for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-text-color);
+}
+
+.trade-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.trade-input {
+    margin-bottom: 15px;
+}
+
+.trade-input input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+}
+
+.trade-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.trade-button, .cancel-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.cancel-button {
+    background-color: #808080;
+    color: white;
+    width: 100%;
+}
+
+.trade-button.buy {
+    background-color: #4CAF50;
+}
+
+.trade-button.sell {
+    background-color: #f44336;
+}
+
+/* Add more specific styles as needed for your game elements */
+
+.positive-change {
+    color: #4caf50;
+}
+
+.negative-change {
+    color: #f44336;
+}
+
+/* Comment out or remove news-related styles
+.news-card {
+    ...
+}
+
+#newsContainer {
+    ...
+}
+
+.news-item {
+    ...
+}
+*/
+
+/* Style scrollbars for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-text-color);
+}
+
+.trade-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.trade-input {
+    margin-bottom: 15px;
+}
+
+.trade-input input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+}
+
+.trade-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.trade-button, .cancel-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.cancel-button {
+    background-color: #808080;
+    color: white;
+    width: 100%;
+}
+
+.trade-button.buy {
+    background-color: #4CAF50;
+}
+
+.trade-button.sell {
+    background-color: #f44336;
+}
+
+/* Add more specific styles as needed for your game elements */
+
+.positive-change {
+    color: #4caf50;
+}
+
+.negative-change {
+    color: #f44336;
+}
+
+/* Comment out or remove news-related styles
+.news-card {
+    ...
+}
+
+#newsContainer {
+    ...
+}
+
+.news-item {
+    ...
+}
+*/
+
+/* Style scrollbars for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-text-color);
+}
+
+.trade-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.trade-input {
+    margin-bottom: 15px;
+}
+
+.trade-input input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+}
+
+.trade-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.trade-button, .cancel-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.cancel-button {
+    background-color: #808080;
+    color: white;
+    width: 100%;
+}
+
+.trade-button.buy {
+    background-color: #4CAF50;
+}
+
+.trade-button.sell {
+    background-color: #f44336;
+}
+
+/* Add more specific styles as needed for your game elements */
+
+.positive-change {
+    color: #4caf50;
+}
+
+.negative-change {
+    color: #f44336;
+}
+
+/* Comment out or remove news-related styles
+.news-card {
+    ...
+}
+
+#newsContainer {
+    ...
+}
+
+.news-item {
+    ...
+}
+*/
+
+/* Style scrollbars for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-text-color);
+}
+
+.trade-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.trade-input {
+    margin-bottom: 15px;
+}
+
+.trade-input input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+}
+
+.trade-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.trade-button, .cancel-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.cancel-button {
+    background-color: #808080;
+    color: white;
+    width: 100%;
+}
+
+.trade-button.buy {
+    background-color: #4CAF50;
+}
+
+.trade-button.sell {
+    background-color: #f44336;
+}
+
+/* Add more specific styles as needed for your game elements */
+
+.positive-change {
+    color: #4caf50;
+}
+
+.negative-change {
+    color: #f44336;
+}
+
+/* Comment out or remove news-related styles
+.news-card {
+    ...
+}
+
+#newsContainer {
+    ...
+}
+
+.news-item {
+    ...
+}
+*/
+
+/* Style scrollbars for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-text-color);
+}
+
+.trade-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.trade-input {
+    margin-bottom: 15px;
+}
+
+.trade-input input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+}
+
+.trade-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.trade-button, .cancel-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.cancel-button {
+    background-color: #808080;
+    color: white;
+    width: 100%;
+}
+
+.trade-button.buy {
+    background-color: #4CAF50;
+}
+
+.trade-button.sell {
+    background-color: #f44336;
+}
+
+/* Add more specific styles as needed for your game elements */
+
+.positive-change {
+    color: #4caf50;
+}
+
+.negative-change {
+    color: #f44336;
+}
+
+/* Comment out or remove news-related styles
+.news-card {
+    ...
+}
+
+#newsContainer {
+    ...
+}
+
+.news-item {
+    ...
+}
+*/
+
+/* Style scrollbars for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-text-color);
+}
+
+.trade-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.trade-input {
+    margin-bottom: 15px;
+}
+
+.trade-input input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+}
+
+.trade-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.trade-button, .cancel-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.cancel-button {
+    background-color: #808080;
+    color: white;
+    width: 100%;
+}
+
+.trade-button.buy {
+    background-color: #4CAF50;
+}
+
+.trade-button.sell {
+    background-color: #f44336;
+}
+
+/* Add more specific styles as needed for your game elements */
+
+.positive-change {
+    color: #4caf50;
+}
+
+.negative-change {
+    color: #f44336;
+}
+
+/* Comment out or remove news-related styles
+.news-card {
+    ...
+}
+
+#newsContainer {
+    ...
+}
+
+.news-item {
+    ...
+}
+*/
+
+/* Style scrollbars for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-text-color);
+}
+
+.trade-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.trade-input {
+    margin-bottom: 15px;
+}
+
+.trade-input input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+}
+
+.trade-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.trade-button, .cancel-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.cancel-button {
+    background-color: #808080;
+    color: white;
+    width: 100%;
+}
+
+.trade-button.buy {
+    background-color: #4CAF50;
+}
+
+.trade-button.sell {
+    background-color: #f44336;
+}
+
+/* Add more specific styles as needed for your game elements */
+
+.positive-change {
+    color: #4caf50;
+}
+
+.negative-change {
+    color: #f44336;
+}
+
+/* Comment out or remove news-related styles
+.news-card {
+    ...
+}
+
+#newsContainer {
+    ...
+}
+
+.news-item {
+    ...
+}
+*/
+
+/* Style scrollbars for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-text-color);
+}
+
+.trade-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.trade-input {
+    margin-bottom: 15px;
+}
+
+.trade-input input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+}
+
+.trade-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.trade-button, .cancel-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.cancel-button {
+    background-color: #808080;
+    color: white;
+    width: 100%;
+}
+
+.trade-button.buy {
+    background-color: #4CAF50;
+}
+
+.trade-button.sell {
+    background-color: #f44336;
+}
+
+/* Add more specific styles as needed for your game elements */
+
+.positive-change {
+    color: #4caf50;
+}
+
+.negative-change {
+    color: #f44336;
+}
+
+/* Comment out or remove news-related styles
+.news-card {
+    ...
+}
+
+#newsContainer {
+    ...
+}
+
+.news-item {
+    ...
+}
+*/
+
+/* Style scrollbars for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-text-color);
+}
+
+.trade-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.trade-input {
+    margin-bottom: 15px;
+}
+
+.trade-input input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+}
+
+.trade-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.trade-button, .cancel-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.cancel-button {
+    background-color: #808080;
+    color: white;
+    width: 100%;
+}
+
+.trade-button.buy {
+    background-color: #4CAF50;
+}
+
+.trade-button.sell {
+    background-color: #f44336;
+}
+
+/* Add more specific styles as needed for your game elements */

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Market Simulator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles2.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0/dist/chartjs-adapter-moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>Trade Market - Intelliquinte</h1>
+            <div class="header-buttons">
+                <button id="tutorialBtn">Tutorial</button>
+                <button id="settingsBtn">Settings</button>
+            </div>
+        </header>
+        <main>
+            <div class="dashboard">
+                <div class="metric-card">
+                    <h3>Balance</h3>
+                    <p class="large-number">$<span id="balance">10000.00</span></p>
+                </div>
+                <div class="metric-card">
+                    <h3>ROI</h3>
+                    <p class="large-number"><span id="roi">0.00</span>%</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Portfolio Value</h3>
+                    <p class="large-number">$<span id="portfolioValue">0.00</span></p>
+                </div>
+                <div class="chart-card">
+                    <h3>Stock Performance</h3>
+                    <div class="chart-container">
+                        <canvas id="stockChart"></canvas>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <h3>Market Overview</h3>
+                    <div id="stockList" class="scrollable-table"></div>
+                </div>
+                <div class="table-card">
+                    <h3>My Portfolio</h3>
+                    <div id="portfolioList" class="scrollable-table"></div>
+                </div>
+                <div class="table-card">
+                    <h3>Recent Transactions</h3>
+                    <div id="transactionLog" class="scrollable-table"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+
+    <div id="tradeModal" class="modal">
+        <div class="modal-content">
+            <h2>Trade <span id="tradeStockSymbol"></span></h2>
+            <div id="tradeWarning" class="trade-warning"></div>
+            <p>Current Price: $<span id="tradeCurrentPrice"></span></p>
+            <div class="trade-amount-buttons">
+                <button class="amount-button" data-amount="1">1</button>
+                <button class="amount-button" data-amount="10">10</button>
+                <button class="amount-button" data-amount="100">100</button>
+                <button class="amount-button" data-amount="max">Max</button>
+                <input type="number" id="customAmount" placeholder="Custom" class="custom-amount">
+            </div>
+            <p>Shares: <span id="tradeShares">0</span></p>
+            <p>Total: $<span id="tradeTotalCost">0.00</span></p>
+            <div class="trade-buttons">
+                <button id="buyButton" class="trade-button buy">Buy</button>
+                <button id="sellButton" class="trade-button sell">Sell</button>
+            </div>
+            <button id="cancelTradeBtn" class="cancel-button">Cancel</button>
+        </div>
+    </div>
+
+    <div id="tutorialModal" class="modal">
+        <div class="modal-content">
+            <h2>Tutorial</h2>
+            <p id="tutorialContent"></p>
+            <button id="nextTutorialBtn">Next</button>
+            <button id="closeTutorialBtn">Close</button>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <h2>Settings</h2>
+            <label for="gameMode">Game Mode:</label>
+            <select id="gameMode">
+                <option value="normal">Normal</option>
+                <option value="bullMarket">Bull Market</option>
+                <option value="bearMarket">Bear Market</option>
+                <option value="volatileMarket">Volatile Market</option>
+            </select>
+            <button id="saveSettingsBtn">Save</button>
+            <button id="closeSettingsBtn">Cancel</button>
+        </div>
+    </div>
+</body>
+</html>
