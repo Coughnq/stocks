@@ -11,8 +11,7 @@ async function initializeStocks() {
     const { data, error } = await supabase
         .from('stocks')
         .select('*')
-        .order('updated_at', { ascending: false })
-        .limit(8);
+        .order('updated_at', { ascending: false });
 
     if (error) {
         console.error('Error fetching stocks:', error);
@@ -38,7 +37,7 @@ async function initializeStocks() {
     return stocks;
 }
 
-function initializeDefaultStocks() {
+async function initializeDefaultStocks() {
     const defaultStocks = {
         AAPL: 150,
         GOOGL: 2800,
@@ -59,17 +58,42 @@ function initializeDefaultStocks() {
     }
 
     console.log('Default stocks initialized:', stocks);
+
+    // Send the default stocks to Supabase
+    await sendStocksToSupabase(stocks);
+
     return stocks;
+}
+
+async function sendStocksToSupabase(stocks) {
+    const stocksArray = Object.entries(stocks).map(([symbol, data]) => ({
+        symbol,
+        price: data.price,
+        updated_at: new Date().toISOString()
+    }));
+
+    const { data, error } = await supabase
+        .from('stocks')
+        .upsert(stocksArray, { 
+            onConflict: 'symbol',
+            update: ['price', 'updated_at']
+        });
+
+    if (error) {
+        console.error('Error sending stocks to Supabase:', error);
+    } else {
+        console.log('Stocks successfully sent to Supabase:', data);
+    }
 }
 
 function subscribeToStockUpdates(updateCallback) {
     supabase
         .channel('public:stocks')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stocks' }, payload => {
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'stocks' }, payload => {
             const stock = payload.new;
             if (stocks[stock.symbol]) {
-                stocks[stock.symbol].price = stock.price;
-                stocks[stock.symbol].history.push(stock.price);
+                stocks[stock.symbol].price = parseFloat(stock.price);
+                stocks[stock.symbol].history.push(parseFloat(stock.price));
                 if (stocks[stock.symbol].history.length > 50) {
                     stocks[stock.symbol].history.shift();
                 }
@@ -87,12 +111,18 @@ export { initializeStocks, subscribeToStockUpdates };
 export async function updateStockPrice(symbol, price) {
     const { data, error } = await supabase
         .from('stocks')
-        .upsert({ symbol, price })
-        .select();
+        .upsert({ 
+            symbol, 
+            price, 
+            updated_at: new Date().toISOString() 
+        }, { 
+            onConflict: 'symbol',
+            update: ['price', 'updated_at']
+        });
 
     if (error) {
         console.error('Error updating stock price:', error);
-        return null; // Return null to indicate an error
+        return null;
     }
     return data;
 }

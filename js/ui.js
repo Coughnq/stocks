@@ -1,258 +1,140 @@
-import { balance, portfolio, gameMode, executeTrade } from './gameState.js';
+import { balance, portfolio, transactions } from './gameState.js';
 import { stocks } from './supabase-client.js';
+import { openTradeModal } from './trade.js';
 import { updateChart } from './chart.js';
-import { transactions } from './app.js';
 
 export function updateDisplay() {
-    updateStockList();
-    updatePortfolioList();
     updateBalance();
-    updateChart();
-    updateRecentTransactions();
     updateROI();
+    updatePortfolioValue();
+    updateStockList();
+    updatePortfolio();
+    updateTransactionLog();
+    updateChart();
 }
 
-function updateStockList() {
-    const stockListElement = document.getElementById('stockList');
-    if (!stockListElement) return;
-
-    let tableHTML = `
-        <table>
-            <thead>
-                <tr>
-                    <th>Symbol</th>
-                    <th>Price</th>
-                    <th>Change</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    for (const [symbol, stock] of Object.entries(stocks)) {
-        const changePercent = stock.trend * 100;
-        const changeClass = changePercent >= 0 ? 'positive-change' : 'negative-change';
-        
-        tableHTML += `
-            <tr>
-                <td>${symbol}</td>
-                <td>$${stock.price.toFixed(2)}</td>
-                <td class="${changeClass}">${changePercent.toFixed(2)}%</td>
-                <td>
-                    <button class="trade-button" onclick="openTradeModal('${symbol}')">Trade</button>
-                </td>
-            </tr>
-        `;
+function updateBalance() {
+    const balanceElement = document.getElementById('balance');
+    if (balanceElement) {
+        balanceElement.textContent = balance.toFixed(2);
     }
-
-    tableHTML += `
-            </tbody>
-        </table>
-    `;
-
-    stockListElement.innerHTML = tableHTML;
 }
 
-function updatePortfolioList() {
-    const portfolioListElement = document.getElementById('portfolioList');
-    if (!portfolioListElement) return;
-
-    let tableHTML = `
-        <table>
-            <thead>
-                <tr>
-                    <th>Symbol</th>
-                    <th>Shares</th>
-                    <th>Current Price</th>
-                    <th>Value</th>
-                    <th>Profit/Loss</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    let totalValue = 0;
-
-    for (const [symbol, holding] of Object.entries(portfolio)) {
-        const stock = stocks[symbol];
-        if (!stock) continue;
-
-        const currentPrice = stock.price;
-        const value = holding.shares * currentPrice;
-        const profitLoss = value - holding.totalCost;
-        const profitLossClass = profitLoss >= 0 ? 'positive-change' : 'negative-change';
-        
-        totalValue += value;
-
-        tableHTML += `
-            <tr>
-                <td>${symbol}</td>
-                <td>${holding.shares}</td>
-                <td>$${currentPrice.toFixed(2)}</td>
-                <td>$${value.toFixed(2)}</td>
-                <td class="${profitLossClass}">$${profitLoss.toFixed(2)}</td>
-            </tr>
-        `;
+function updateROI() {
+    // Implement ROI calculation logic here
+    const roiElement = document.getElementById('roi');
+    if (roiElement) {
+        roiElement.textContent = '0.00'; // Placeholder value
     }
+}
 
-    tableHTML += `
-            </tbody>
-        </table>
-    `;
-
-    portfolioListElement.innerHTML = tableHTML;
-
-    // Update Portfolio Value
+function updatePortfolioValue() {
+    let totalValue = Object.entries(portfolio).reduce((total, [symbol, holding]) => {
+        return total + (holding.shares * stocks[symbol].price);
+    }, 0);
     const portfolioValueElement = document.getElementById('portfolioValue');
     if (portfolioValueElement) {
         portfolioValueElement.textContent = totalValue.toFixed(2);
     }
 }
 
-function updateBalance() {
-    const balanceElement = document.getElementById('balance');
-    if (balanceElement) balanceElement.textContent = balance.toFixed(2);
+function updateStockList() {
+    const stockListElement = document.getElementById('stockList');
+    if (!stockListElement) return;
+
+    stockListElement.innerHTML = '';
+    for (const [symbol, stock] of Object.entries(stocks)) {
+        const row = document.createElement('div');
+        row.className = 'stock-row';
+        row.innerHTML = `
+            <span>${symbol}</span>
+            <span>$${stock.price.toFixed(2)}</span>
+            <span class="${stock.trend >= 0 ? 'positive-change' : 'negative-change'}">
+                ${(stock.trend * 100).toFixed(2)}%
+            </span>
+            <div class="button-container">
+                <button class="buy-button" data-symbol="${symbol}">Buy</button>
+                <button class="sell-button" data-symbol="${symbol}">Sell</button>
+            </div>
+        `;
+        stockListElement.appendChild(row);
+    }
+
+    // Add event listeners to buy and sell buttons
+    stockListElement.querySelectorAll('.buy-button, .sell-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const symbol = e.target.getAttribute('data-symbol');
+            const action = e.target.classList.contains('buy-button') ? 'buy' : 'sell';
+            openTradeModal(action, symbol);
+        });
+    });
 }
 
-function updateMarketOverview() {
-    // Implement market overview update logic
+function updatePortfolio() {
+    const portfolioListElement = document.getElementById('portfolioList');
+    if (!portfolioListElement) return;
+
+    portfolioListElement.innerHTML = '';
+    for (const [symbol, holding] of Object.entries(portfolio)) {
+        const stock = stocks[symbol];
+        if (!stock) continue;
+
+        const currentValue = holding.shares * stock.price;
+        const profitLoss = currentValue - holding.totalCost;
+
+        const row = document.createElement('div');
+        row.className = 'portfolio-row';
+        row.innerHTML = `
+            <span>${symbol}</span>
+            <span>${holding.shares}</span>
+            <span>$${currentValue.toFixed(2)}</span>
+            <span class="${profitLoss >= 0 ? 'positive-change' : 'negative-change'}">
+                $${profitLoss.toFixed(2)}
+            </span>
+        `;
+        portfolioListElement.appendChild(row);
+    }
 }
 
-function updateRecentTransactions() {
+function updateTransactionLog() {
     const transactionLogElement = document.getElementById('transactionLog');
     if (!transactionLogElement) return;
 
-    let tableHTML = `
-        <table>
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <th>Action</th>
-                    <th>Symbol</th>
-                    <th>Shares</th>
-                    <th>Price</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    transactions.slice(-5).reverse().forEach(transaction => {
-        tableHTML += `
-            <tr>
-                <td>${transaction.time}</td>
-                <td>${transaction.action}</td>
-                <td>${transaction.symbol}</td>
-                <td>${transaction.shares}</td>
-                <td>$${transaction.price.toFixed(2)}</td>
-                <td>$${transaction.total.toFixed(2)}</td>
-            </tr>
+    transactionLogElement.innerHTML = '';
+    for (const transaction of transactions.slice().reverse()) {
+        const row = document.createElement('div');
+        row.className = 'transaction-row';
+        row.innerHTML = `
+            <span>${transaction.time}</span>
+            <span>${transaction.action.toUpperCase()}</span>
+            <span>${transaction.symbol}</span>
+            <span>${transaction.shares}</span>
+            <span>$${transaction.price.toFixed(2)}</span>
+            <span>$${(transaction.shares * transaction.price).toFixed(2)}</span>
         `;
-    });
-
-    tableHTML += `
-            </tbody>
-        </table>
-    `;
-
-    transactionLogElement.innerHTML = tableHTML;
-}
-
-function updateROI() {
-    const roiElement = document.getElementById('roi');
-    if (roiElement) {
-        const initialBalance = 10000;
-        const roi = ((balance - initialBalance) / initialBalance) * 100;
-        roiElement.textContent = roi.toFixed(2);
+        transactionLogElement.appendChild(row);
     }
 }
 
-let tutorialStep = 0;
-const tutorialSteps = [
-    "Welcome to the Stock Market Simulator! Let's get started.",
-    "This is your balance. You start with $10,000.",
-    "Here you can see the available stocks. Click on a stock to trade.",
-    "The chart shows the performance of stocks over time.",
-    "Your portfolio shows the stocks you own and their current value.",
-    "Keep an eye on the news! It can affect stock prices.",
-    "Good luck and happy trading!"
-];
+export function setupEventListeners() {
+    const tutorialBtn = document.getElementById('tutorialBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
 
-export function showTutorial() {
-    tutorialStep = 0;
-    document.getElementById('tutorialModal').style.display = 'block';
-    showTutorialStep();
-}
+    if (tutorialBtn) {
+        tutorialBtn.addEventListener('click', showTutorial);
+    }
 
-function showTutorialStep() {
-    document.getElementById('tutorialContent').textContent = tutorialSteps[tutorialStep];
-}
-
-export function nextTutorialStep() {
-    tutorialStep++;
-    if (tutorialStep < tutorialSteps.length) {
-        showTutorialStep();
-    } else {
-        document.getElementById('tutorialModal').style.display = 'none';
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', showSettings);
     }
 }
 
-export function closeSettings() {
-    const settingsModal = document.getElementById('settingsModal');
-    if (settingsModal) {
-        settingsModal.style.display = 'none';
-    }
+function showTutorial() {
+    // Implement tutorial logic here
+    console.log('Tutorial button clicked');
 }
 
-export function addTransaction(action, symbol, price, shares, total) {
-    const transaction = {
-        time: new Date().toLocaleTimeString(),
-        action,
-        symbol,
-        shares,
-        price,
-        total
-    };
-    transactions.unshift(transaction);
-    if (transactions.length > 20) {
-        transactions.pop();
-    }
-    updateRecentTransactions();
-}
-
-function updatePortfolioContainer() {
-    const portfolioList = document.getElementById('portfolio-list');
-    const portfolioTotal = document.getElementById('portfolio-total');
-    
-    if (!portfolioList || !portfolioTotal) {
-        console.error('Portfolio elements not found');
-        return;
-    }
-
-    portfolioList.innerHTML = '';
-    let totalValue = 0;
-
-    for (const [symbol, holding] of Object.entries(portfolio)) {
-        if (holding.shares > 0) {
-            const stockPrice = stocks[symbol].price;
-            const value = holding.shares * stockPrice;
-            totalValue += value;
-
-            const portfolioItem = document.createElement('div');
-            portfolioItem.className = 'portfolio-item';
-            portfolioItem.innerHTML = `
-                <span>${symbol}: ${holding.shares} shares</span>
-                <span>$${value.toFixed(2)}</span>
-            `;
-            portfolioList.appendChild(portfolioItem);
-        }
-    }
-
-    portfolioTotal.textContent = `Total Portfolio Value: $${totalValue.toFixed(2)}`;
-
-    // Update balance display
-    const balanceDisplay = document.getElementById('balance');
-    if (balanceDisplay) {
-        balanceDisplay.textContent = balance.toFixed(2);
-    }
+function showSettings() {
+    // Implement settings logic here
+    console.log('Settings button clicked');
 }

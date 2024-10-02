@@ -1,121 +1,138 @@
-import { balance, portfolio } from './gameState.js';
 import { stocks } from './supabase-client.js';
+import { balance, portfolio, performTrade } from './gameState.js';
+import { updateDisplay } from './ui.js';
 
-const tradingFee = 0.001; // 0.1% trading fee
 let currentTradeSymbol = '';
-let currentTradeInterval;
-let currentTradeShares = 0;
-let currentTradeAction = ''; // Add this line to keep track of the current action (buy or sell)
+let currentTradeAction = '';
 
-export function openTradeModal(symbol) {
+function openTradeModal(action, symbol) {
     currentTradeSymbol = symbol;
-    currentTradeShares = 0;
-    currentTradeAction = ''; // Reset the action when opening the modal
+    currentTradeAction = action;
+
     const stock = stocks[symbol];
     const tradeModal = document.getElementById('tradeModal');
-    const tradeStockSymbol = document.getElementById('tradeStockSymbol');
-    const tradeCurrentPrice = document.getElementById('tradeCurrentPrice');
-    const tradeShares = document.getElementById('tradeShares');
+    const tradeSymbol = document.getElementById('tradeSymbol');
+    const tradeAction = document.getElementById('tradeAction');
+    const tradePrice = document.getElementById('tradePrice');
     const tradeTotalCost = document.getElementById('tradeTotalCost');
-    const buyButton = document.getElementById('buyButton');
-    const sellButton = document.getElementById('sellButton');
+    const customShares = document.getElementById('customShares');
 
-    tradeStockSymbol.textContent = symbol;
-    updateTradePrice();
+    tradeSymbol.textContent = symbol;
+    tradeAction.textContent = action.charAt(0).toUpperCase() + action.slice(1);
+    tradePrice.textContent = stock.price.toFixed(2);
+    tradeTotalCost.textContent = '0.00';
+    customShares.value = '';
+
+    // Clear any existing error messages
+    hideError();
 
     tradeModal.style.display = 'block';
 
-    // Clear any existing warnings
-    document.getElementById('tradeWarning').style.display = 'none';
-
-    // Clear previous interval if exists
-    if (currentTradeInterval) clearInterval(currentTradeInterval);
-
-    // Set up real-time price updates
-    currentTradeInterval = setInterval(updateTradePrice, 1000);
-
-    // Add event listeners for amount buttons
-    const amountButtons = document.querySelectorAll('.amount-button');
-    amountButtons.forEach(button => {
-        button.addEventListener('click', () => setTradeAmount(button.dataset.amount));
+    // Add event listeners
+    document.querySelectorAll('.share-option').forEach(button => {
+        button.addEventListener('click', handleShareOptionClick);
     });
 
-    // Add event listener for custom amount input
-    const customAmountInput = document.getElementById('customAmount');
-    customAmountInput.addEventListener('input', () => setTradeAmount(customAmountInput.value));
-
-    // Update event listeners for buy and sell buttons
-    buyButton.addEventListener('click', () => {
-        currentTradeAction = 'buy';
-        executeTrade('buy');
-    });
-    sellButton.addEventListener('click', () => {
-        currentTradeAction = 'sell';
-        executeTrade('sell');
-    });
-
-    // Add event listeners for buy and sell buttons
-    buyButton.addEventListener('click', () => executeTrade('buy'));
-    sellButton.addEventListener('click', () => executeTrade('sell'));
+    customShares.addEventListener('input', handleCustomSharesInput);
+    document.getElementById('executeTrade').addEventListener('click', executeTrade);
+    document.getElementById('cancelTrade').addEventListener('click', closeTradeModal);
 }
 
-function setTradeAmount(amount) {
+function handleShareOptionClick(event) {
+    const shares = event.target.dataset.shares;
     const stock = stocks[currentTradeSymbol];
-    if (amount === 'max') {
-        if (currentTradeAction === 'sell' && portfolio[currentTradeSymbol]) {
-            // For selling, set max to the number of shares owned
-            currentTradeShares = portfolio[currentTradeSymbol].shares;
-        } else {
-            // For buying, calculate max shares that can be bought with current balance
-            currentTradeShares = Math.floor(balance / stock.price);
-        }
+    let quantity;
+
+    if (shares === 'max') {
+        quantity = currentTradeAction === 'buy' 
+            ? Math.floor(balance / stock.price)
+            : portfolio[currentTradeSymbol]?.shares || 0;
     } else {
-        currentTradeShares = parseInt(amount) || 0;
+        quantity = parseInt(shares);
     }
-    updateTradeTotalCost();
+
+    document.getElementById('customShares').value = quantity;
+    updateTotalCost(quantity);
 }
 
-function updateTradePrice() {
-    const tradeCurrentPrice = document.getElementById('tradeCurrentPrice');
-    tradeCurrentPrice.textContent = stocks[currentTradeSymbol].price.toFixed(2);
-    updateTradeTotalCost();
+function handleCustomSharesInput(event) {
+    const quantity = parseInt(event.target.value) || 0;
+    updateTotalCost(quantity);
 }
 
-function updateTradeTotalCost() {
-    const tradeShares = document.getElementById('tradeShares');
+function updateTotalCost(quantity) {
+    const stock = stocks[currentTradeSymbol];
+    const totalCost = (quantity * stock.price).toFixed(2);
     const tradeTotalCost = document.getElementById('tradeTotalCost');
-    const totalCost = currentTradeShares * stocks[currentTradeSymbol].price;
-    tradeShares.textContent = currentTradeShares;
-    tradeTotalCost.textContent = totalCost.toFixed(2);
+    tradeTotalCost.textContent = totalCost;
 
-    // Update buy/sell button states
-    const buyButton = document.getElementById('buyButton');
-    const sellButton = document.getElementById('sellButton');
-    
-    buyButton.disabled = totalCost > balance;
-    sellButton.disabled = !portfolio[currentTradeSymbol] || portfolio[currentTradeSymbol].shares < currentTradeShares;
+    // Update the label to show "Total Cost" for buying and "Total Value" for selling
+    const totalLabel = document.getElementById('totalLabel');
+    if (totalLabel) {
+        totalLabel.textContent = currentTradeAction === 'buy' ? 'Total Cost:' : 'Total Value:';
+    }
+}
+
+function executeTrade() {
+    const quantity = parseInt(document.getElementById('customShares').value);
+    const stock = stocks[currentTradeSymbol];
+
+    if (isNaN(quantity) || quantity <= 0) {
+        showError('Please enter a valid number of shares.');
+        return;
+    }
+
+    if (currentTradeAction === 'buy' && quantity * stock.price > balance) {
+        showError('Insufficient funds for this trade.');
+        return;
+    }
+
+    if (currentTradeAction === 'sell' && (portfolio[currentTradeSymbol]?.shares || 0) < quantity) {
+        showError('Not enough shares to sell.');
+        return;
+    }
+
+    const success = performTrade(currentTradeAction, currentTradeSymbol, quantity, stock.price);
+
+    if (success) {
+        closeTradeModal();
+        updateDisplay();
+    } else {
+        showError('Trade failed. Please try again.');
+    }
 }
 
 function closeTradeModal() {
     document.getElementById('tradeModal').style.display = 'none';
-    if (currentTradeInterval) clearInterval(currentTradeInterval);
+    // Remove event listeners
+    document.querySelectorAll('.share-option').forEach(button => {
+        button.removeEventListener('click', handleShareOptionClick);
+    });
+    document.getElementById('customShares').removeEventListener('input', handleCustomSharesInput);
+    document.getElementById('executeTrade').removeEventListener('click', executeTrade);
+    document.getElementById('cancelTrade').removeEventListener('click', closeTradeModal);
+
+    // Hide any error messages when closing the modal
+    hideError();
 }
 
-function showWarning(message) {
-    const warningElement = document.getElementById('tradeWarning');
-    warningElement.textContent = message;
-    warningElement.style.display = 'block';
-    setTimeout(() => {
-        warningElement.style.display = 'none';
-    }, 3000); // Hide the warning after 3 seconds
+function showError(message) {
+    const errorPopup = document.getElementById('errorPopup');
+    const errorMessage = document.getElementById('errorMessage');
+    errorMessage.textContent = message;
+    errorPopup.style.display = 'block';
+
+    // Automatically hide the error after 3 seconds
+    setTimeout(hideError, 3000);
 }
 
-// Event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    const cancelTradeBtn = document.getElementById('cancelTradeBtn');
-    if (cancelTradeBtn) {
-        cancelTradeBtn.addEventListener('click', closeTradeModal);
-    }
-});
+function hideError() {
+    const errorPopup = document.getElementById('errorPopup');
+    errorPopup.style.display = 'none';
+}
 
-// Remove any window assignments
+// Single export statement for all functions that need to be exported
+export {
+    openTradeModal,
+    closeTradeModal
+};

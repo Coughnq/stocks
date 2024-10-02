@@ -2,13 +2,15 @@ let balance = 10000; // Default starting balance
 let portfolio = {};
 let gameMode = 'normal'; // Default game mode
 let achievements = []; // You might want to initialize this with your achievement definitions
+let transactions = []; // Add this line to store transactions
 
 function saveGameState() {
     const gameState = {
-        balance: balance,
-        portfolio: portfolio,
-        gameMode: gameMode,
-        achievements: achievements
+        balance,
+        portfolio,
+        gameMode,
+        achievements,
+        transactions
     };
     localStorage.setItem('stockMarketGameState', JSON.stringify(gameState));
 }
@@ -21,6 +23,7 @@ function loadGameState() {
         portfolio = state.portfolio;
         gameMode = state.gameMode;
         achievements = state.achievements;
+        transactions = state.transactions || [];
     }
 }
 
@@ -41,18 +44,36 @@ function updatePortfolio(symbol, shares, cost) {
     saveGameState();
 }
 
-function executeTrade(action, symbol, shares, price) {
+function addTransaction(action, symbol, shares, price) {
+    const transaction = {
+        time: new Date().toLocaleString(),
+        action,
+        symbol,
+        shares,
+        price,
+        total: shares * price
+    };
+    transactions.push(transaction);
+    if (transactions.length > 50) { // Keep only the last 50 transactions
+        transactions.shift();
+    }
+    saveGameState();
+}
+
+function performTrade(action, symbol, shares, price) {
     const totalCost = shares * price;
     if (action === 'buy') {
         if (balance >= totalCost) {
             updateBalance(-totalCost);
             updatePortfolio(symbol, shares, totalCost);
+            addTransaction(action, symbol, shares, price);
             return true;
         }
     } else if (action === 'sell') {
         if (portfolio[symbol] && portfolio[symbol].shares >= shares) {
             updateBalance(totalCost);
             updatePortfolio(symbol, -shares, -totalCost);
+            addTransaction(action, symbol, shares, price);
             return true;
         }
     }
@@ -78,17 +99,18 @@ function unlockAchievement(achievementId) {
     }
 }
 
-// Single export statement for all functions and variables
+// Single export statement for all variables and functions
 export {
     balance,
     portfolio,
     gameMode,
     achievements,
+    transactions,
     saveGameState,
     loadGameState,
     updateBalance,
     updatePortfolio,
-    executeTrade,
+    performTrade,
     resetGameState,
     unlockAchievement
 };

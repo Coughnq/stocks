@@ -1,47 +1,9 @@
-import { openTradeModal } from './trade.js';
+import { updateDisplay, setupEventListeners } from './ui.js';
 import { initializeStocks, subscribeToStockUpdates } from './supabase-client.js';
+import { loadGameState, saveGameState } from './gameState.js';
 import { initializeChart } from './chart.js';
-import { 
-    balance, 
-    portfolio, 
-    gameMode, 
-    achievements, 
-    saveGameState, 
-    loadGameState, 
-    updateBalance,
-    updatePortfolio, 
-    unlockAchievement,
-    executeTrade,
-    resetGameState
-} from './gameState.js';
-import { updateDisplay } from './ui.js';
-import { showTutorial, nextTutorialStep, closeSettings } from './ui.js';
-import { updateStockPrices } from './stock.js';  // Add this import
-
-let transactions = [];
-
-const STOCK_SYMBOLS = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'FB', 'TSLA', 'NVDA', 'JPM'];
-
-function generateRandomStockData() {
-    STOCK_SYMBOLS.forEach(symbol => {
-        if (!stocks[symbol]) {
-            stocks[symbol] = {
-                price: Math.random() * 1000 + 50,
-                history: []
-            };
-        }
-        const change = (Math.random() - 0.5) * 0.02; // -1% to 1% change
-        const newPrice = Math.max(0.01, stocks[symbol].price * (1 + change));
-        stocks[symbol].price = parseFloat(newPrice.toFixed(2));
-        stocks[symbol].history.push(stocks[symbol].price);
-        if (stocks[symbol].history.length > 50) stocks[symbol].history.shift();
-        
-        updateStockPrice(symbol, stocks[symbol].price);
-    });
-    
-    // Update the display after generating new stock data
-    updateDisplay();
-}
+import { updateStockPrices } from './stock.js';
+import { openTradeModal, closeTradeModal } from './trade.js';
 
 async function initApp() {
     try {
@@ -49,10 +11,7 @@ async function initApp() {
         initializeChart();
 
         // Initialize stocks first
-        const initializedStocks = await initializeStocks();
-        if (!initializedStocks || Object.keys(initializedStocks).length === 0) {
-            throw new Error('Failed to initialize stocks');
-        }
+        await initializeStocks();
 
         // Subscribe to stock updates
         subscribeToStockUpdates(updateDisplay);
@@ -62,6 +21,9 @@ async function initApp() {
 
         // Initial update
         updateDisplay();
+
+        // Set up event listeners
+        setupEventListeners();
 
         // Set up periodic updates
         setInterval(() => {
@@ -78,17 +40,22 @@ async function initApp() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM content loaded, initializing app...');
     initApp();
-    updateDisplay(); // Initial update
-    setInterval(updateDisplay, 5000); // Update every 5 seconds
 });
 
-window.triggerSaveGameState = saveGameState;
+// Make these functions available globally if needed
+window.openTradeModal = openTradeModal;
+window.closeTradeModal = closeTradeModal;
 
-export { transactions };
+// Make sure to use openTradeModal when handling buy/sell button clicks
+function setupTradeButtons() {
+    document.querySelectorAll('.buy-button, .sell-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const symbol = e.target.getAttribute('data-symbol');
+            const action = e.target.classList.contains('buy-button') ? 'buy' : 'sell';
+            openTradeModal(action, symbol);
+        });
+    });
+}
 
-window.addEventListener('storage', (event) => {
-    if (event.key === 'stockMarketGameState') {
-        loadGameState();
-        updateDisplay();
-    }
-});
+// Call this function after updating the stock list in your UI
+setupTradeButtons();

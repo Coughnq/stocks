@@ -14,7 +14,7 @@
 <body>
     <div id="app">
         <header>
-            <h1>Trade Market - Intelliquinte</h1>
+            <h1>Stock Market Simulator</h1>
             <div class="header-buttons">
                 <button id="tutorialBtn">Tutorial</button>
                 <button id="settingsBtn">Settings</button>
@@ -45,7 +45,7 @@
                     <div id="stockList" class="scrollable-table"></div>
                 </div>
                 <div class="table-card">
-                    <h3>My Portfolio</h3>
+                    <h3>Your Portfolio</h3>
                     <div id="portfolioList" class="scrollable-table"></div>
                 </div>
                 <div class="table-card">
@@ -60,48 +60,26 @@
 
     <div id="tradeModal" class="modal">
         <div class="modal-content">
-            <h2>Trade <span id="tradeStockSymbol"></span></h2>
-            <div id="tradeWarning" class="trade-warning"></div>
-            <p>Current Price: $<span id="tradeCurrentPrice"></span></p>
-            <div class="trade-amount-buttons">
-                <button class="amount-button" data-amount="1">1</button>
-                <button class="amount-button" data-amount="10">10</button>
-                <button class="amount-button" data-amount="100">100</button>
-                <button class="amount-button" data-amount="max">Max</button>
-                <input type="number" id="customAmount" placeholder="Custom" class="custom-amount">
+            <h2>Trade <span id="tradeSymbol"></span></h2>
+            <p>Action: <span id="tradeAction"></span></p>
+            <p>Current Price: $<span id="tradePrice"></span></p>
+            <div class="share-options">
+                <button class="share-option" data-shares="1">1</button>
+                <button class="share-option" data-shares="10">10</button>
+                <button class="share-option" data-shares="100">100</button>
+                <button class="share-option" data-shares="max">Max</button>
+                <input type="number" id="customShares" placeholder="Custom" min="1">
             </div>
-            <p>Shares: <span id="tradeShares">0</span></p>
-            <p>Total: $<span id="tradeTotalCost">0.00</span></p>
-            <div class="trade-buttons">
-                <button id="buyButton" class="trade-button buy">Buy</button>
-                <button id="sellButton" class="trade-button sell">Sell</button>
+            <p><span id="totalLabel">Total Cost:</span> $<span id="tradeTotalCost">0.00</span></p>
+            <div class="modal-buttons">
+                <button id="executeTrade">Execute Trade</button>
+                <button id="cancelTrade">Cancel</button>
             </div>
-            <button id="cancelTradeBtn" class="cancel-button">Cancel</button>
         </div>
     </div>
 
-    <div id="tutorialModal" class="modal">
-        <div class="modal-content">
-            <h2>Tutorial</h2>
-            <p id="tutorialContent"></p>
-            <button id="nextTutorialBtn">Next</button>
-            <button id="closeTutorialBtn">Close</button>
-        </div>
-    </div>
-
-    <div id="settingsModal" class="modal">
-        <div class="modal-content">
-            <h2>Settings</h2>
-            <label for="gameMode">Game Mode:</label>
-            <select id="gameMode">
-                <option value="normal">Normal</option>
-                <option value="bullMarket">Bull Market</option>
-                <option value="bearMarket">Bear Market</option>
-                <option value="volatileMarket">Volatile Market</option>
-            </select>
-            <button id="saveSettingsBtn">Save</button>
-            <button id="closeSettingsBtn">Cancel</button>
-        </div>
+    <div id="errorPopup" class="error-popup">
+        <p id="errorMessage"></p>
     </div>
 </body>
 </html>
